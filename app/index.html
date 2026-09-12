@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web Studio</title>
+<link rel="icon" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 6h16M4 12h10M4 18h13" />
+    </svg>
+    <span>Web Studio</span>
+  </div>
+
+  <div class="bar-group">
+    <button type="button" id="btn-open" class="btn" title="Open files (Ctrl+O)">Open</button>
+    <button type="button" id="btn-folder" class="btn" title="Open a whole folder">Folder</button>
+    <button type="button" id="btn-save" class="btn btn-primary" title="Save every changed file (Ctrl+S)">Save</button>
+    <button type="button" id="btn-saveas" class="btn" title="Save the current file somewhere new">Save as</button>
+    <button type="button" id="btn-export" class="btn" title="Download one self-contained HTML file">Export</button>
+  </div>
+
+  <div class="bar-group">
+    <button type="button" id="btn-new" class="btn" title="Start again from the starter page">New</button>
+  </div>
+
+  <div class="bar-spacer"></div>
+
+  <div class="bar-group" id="save-state">
+    <span class="dot" id="dirty-dot" hidden title="Unsaved changes"></span>
+    <span class="muted" id="save-note">Starter page</span>
+  </div>
+
+  <div class="bar-group">
+    <button type="button" id="btn-split" class="btn" aria-pressed="false" title="Show two files side by side">Split</button>
+    <button type="button" id="btn-sidebar" class="btn" aria-pressed="true" title="Show the outline">Outline</button>
+    <button type="button" id="btn-help" class="btn" title="Keyboard shortcuts and what this does">?</button>
+  </div>
+</header>
+
+<main class="shell">
+
+  <!-- ── outline ─────────────────────────────────────────────────────── -->
+  <aside class="side" id="side">
+    <div class="side-head">
+      <span id="side-title">Outline</span>
+      <input type="search" id="side-filter" class="side-filter" placeholder="Filter" aria-label="Filter the outline">
+    </div>
+    <div class="side-list" id="outline" role="tree" aria-label="Document outline"></div>
+    <div class="side-foot">
+      <div class="side-stat"><span id="stat-elements">0</span> elements</div>
+      <div class="side-stat"><span id="stat-rules">0</span> rules</div>
+    </div>
+  </aside>
+
+  <div class="split-h" id="split-main">
+
+    <!-- ── editors ───────────────────────────────────────────────────── -->
+    <section class="editors" id="editors">
+      <div class="pane" data-pane="a">
+        <div class="pane-tabs" role="tablist" aria-label="Documents"></div>
+        <div class="ed" data-editor="a">
+          <div class="ed-gutter"><div class="ed-gutter-inner"></div></div>
+          <div class="ed-scroll">
+            <pre class="ed-layer" aria-hidden="true"><code></code></pre>
+            <textarea class="ed-input" spellcheck="false" autocapitalize="off"
+              autocomplete="off" autocorrect="off" wrap="off"
+              aria-label="Source code"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane-split" id="pane-split" hidden role="separator" aria-orientation="vertical"></div>
+
+      <div class="pane" data-pane="b" hidden>
+        <div class="pane-tabs" role="tablist" aria-label="Documents, second pane"></div>
+        <div class="ed" data-editor="b">
+          <div class="ed-gutter"><div class="ed-gutter-inner"></div></div>
+          <div class="ed-scroll">
+            <pre class="ed-layer" aria-hidden="true"><code></code></pre>
+            <textarea class="ed-input" spellcheck="false" autocapitalize="off"
+              autocomplete="off" autocorrect="off" wrap="off"
+              aria-label="Source code, second pane"></textarea>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="drag-h" id="drag-main" role="separator" aria-orientation="vertical"
+      tabindex="0" aria-label="Resize the preview"></div>
+
+    <!-- ── preview ───────────────────────────────────────────────────── -->
+    <section class="preview">
+      <div class="pv-bar">
+        <select id="viewport" class="select" aria-label="Viewport size"></select>
+        <button type="button" id="btn-rotate" class="btn btn-icon" title="Rotate the device" aria-pressed="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h12a4 4 0 0 1 4 4v4M4 8l3-3M4 8l3 3"/></svg>
+        </button>
+        <select id="zoom" class="select" aria-label="Zoom">
+          <option value="fit">Fit</option>
+          <option value="1">100%</option>
+          <option value="0.75">75%</option>
+          <option value="0.5">50%</option>
+          <option value="0.25">25%</option>
+        </select>
+        <span class="pv-size muted" id="pv-size"></span>
+        <div class="bar-spacer"></div>
+        <button type="button" id="btn-design" class="btn" aria-pressed="false"
+          title="Select, drag and resize elements in the preview (Ctrl+D)">Design</button>
+        <select id="style-target" class="select" aria-label="Where dragged styles are written" hidden>
+          <option value="rule">to the rule</option>
+          <option value="inline">to style=""</option>
+        </select>
+        <button type="button" id="btn-reload" class="btn btn-icon" title="Reload the preview (Ctrl+Enter)">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v4h-4"/></svg>
+        </button>
+      </div>
+
+      <div class="pv-stage" id="pv-stage">
+        <iframe id="pv-frame" title="Live preview"
+          sandbox="allow-scripts allow-forms allow-modals allow-popups allow-same-origin"></iframe>
+      </div>
+
+      <div class="drag-v" id="drag-console" role="separator" aria-orientation="horizontal"
+        tabindex="0" aria-label="Resize the console"></div>
+
+      <div class="console" id="console-panel">
+        <div class="con-bar">
+          <span class="con-title">Console</span>
+          <span class="con-count" id="con-count"></span>
+          <div class="bar-spacer"></div>
+          <button type="button" id="btn-clear-con" class="btn btn-sm">Clear</button>
+        </div>
+        <div class="con-log" id="con-log" role="log" aria-live="polite"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ── inline help ─────────────────────────────────────────────────────── -->
+<footer class="status">
+  <span class="status-kind" id="help-kind"></span>
+  <span class="status-text" id="help-text">Start typing. Ctrl+Space brings up suggestions anywhere.</span>
+  <div class="bar-spacer"></div>
+  <span class="status-diag" id="diag-count"></span>
+  <span class="status-pos muted" id="caret-pos">1:1</span>
+</footer>
+
+<!-- ── the value popover, cloned once per editor pane ──────────────────── -->
+<template id="tpl-values">
+  <div class="vt" hidden>
+    <div class="vt-number" hidden>
+      <button type="button" class="vt-grip" title="Drag to change. Alt for 0.1, Shift for 10.">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 9l-4 3 4 3M16 9l4 3-4 3"/></svg>
+      </button>
+      <input type="text" class="vt-num-input" aria-label="Value" spellcheck="false">
+      <span class="vt-num-hint muted"></span>
+    </div>
+
+    <div class="vt-colour" hidden>
+      <div class="vt-swatch"><input type="color" class="vt-native" aria-label="Pick a colour"></div>
+      <div class="vt-fields">
+        <input type="text" class="vt-hex" aria-label="Hex" spellcheck="false">
+        <div class="vt-channels">
+          <label><span>R</span><input type="number" class="vt-ch" data-ch="r" min="0" max="255"></label>
+          <label><span>G</span><input type="number" class="vt-ch" data-ch="g" min="0" max="255"></label>
+          <label><span>B</span><input type="number" class="vt-ch" data-ch="b" min="0" max="255"></label>
+          <label><span>A</span><input type="number" class="vt-ch" data-ch="a" min="0" max="1" step="0.05"></label>
+        </div>
+        <div class="vt-formats">
+          <button type="button" class="vt-fmt" data-fmt="hex" aria-pressed="true">hex</button>
+          <button type="button" class="vt-fmt" data-fmt="rgb" aria-pressed="false">rgb</button>
+          <button type="button" class="vt-fmt" data-fmt="hsl" aria-pressed="false">hsl</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- ── help ────────────────────────────────────────────────────────────── -->
+<dialog id="help-dialog" class="dialog">
+  <form method="dialog">
+    <h2>Web Studio</h2>
+    <p class="lede">Three files, a live preview, and suggestions that know which
+      of the three you are typing in.</p>
+
+    <h3>Keys</h3>
+    <dl class="keys">
+      <dt>Ctrl+1 / 2 / 3</dt><dd>HTML, CSS, JavaScript</dd>
+      <dt>Ctrl+Space</dt><dd>Suggestions, anywhere</dd>
+      <dt>Ctrl+/</dt><dd>Comment or uncomment the selected lines</dd>
+      <dt>Tab / Shift+Tab</dt><dd>Indent or outdent</dd>
+      <dt>Ctrl+S</dt><dd>Save every changed file</dd>
+      <dt>Ctrl+Shift+S</dt><dd>Save the current file somewhere new</dd>
+      <dt>Ctrl+O</dt><dd>Open files</dd>
+      <dt>Ctrl+Enter</dt><dd>Reload the preview now</dd>
+      <dt>Ctrl+B</dt><dd>Show or hide the outline</dd>
+      <dt>Ctrl+\</dt><dd>Split the editor</dd>
+      <dt>Ctrl+D</dt><dd>Design mode on or off</dd>
+    </dl>
+
+    <h3>Things that are easy to miss</h3>
+    <ul class="notes">
+      <li><b>Numbers can be dragged.</b> Put the caret on one and a grip appears
+        under it. Hold Alt for tenths, Shift for tens.</li>
+      <li><b>Colours open a picker.</b> Any hex, <code>rgb()</code> or
+        <code>hsl()</code> value, in a stylesheet or an inline style.</li>
+      <li><b>Design</b> makes the preview editable: click to select and jump to
+        the markup, drag to move an element, pull the handles to resize it,
+        Delete to remove it. Every gesture edits the source, and Ctrl+Z takes
+        it back.</li>
+      <li><b>Class names cross over.</b> CSS suggests classes your HTML uses;
+        HTML suggests classes your CSS styles.</li>
+      <li><b>Save writes back</b> to the files you opened, in place.</li>
+    </ul>
+    <menu><button class="btn btn-primary" value="close">Close</button></menu>
+  </form>
+</dialog>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="src/schema.js"></script>
+<script src="src/highlight.js"></script>
+<script src="src/editor.js"></script>
+<script src="src/parse.js"></script>
+<script src="src/analyze.js"></script>
+<script src="src/complete.js"></script>
+<script src="src/values.js"></script>
+<script src="src/edits.js"></script>
+<script src="src/runtime.js"></script>
+<script src="src/preview.js"></script>
+<script src="src/files.js"></script>
+<script src="src/starter.js"></script>
+<script src="src/app.js"></script>
+</body>
+</html>
